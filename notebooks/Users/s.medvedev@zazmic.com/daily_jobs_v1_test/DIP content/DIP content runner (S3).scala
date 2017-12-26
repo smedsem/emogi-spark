@@ -51,7 +51,7 @@ val globalStartTs = DateTime.now()
 dayRanges.foreach { day =>
   val startTs = DateTime.now()
   print(s"Started collecting DIP content stats for the time range from ${new DateTime(day._1)} to ${new DateTime(day._2)}..")
-  val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/DIP content/DIP content (S3)", timeoutSec, Map("dateFrom" -> day._1.toString, "dateTo" -> day._2.toString, "s3Folder" -> s3Folder))
+  val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/DIP content/DIP content (S3)", timeoutSec, Map("dateFrom" -> day._1.toString, "dateTo" -> day._2.toString, "s3Folder" -> s3Folder))
   val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
   println(s" - processed day, result=$result, it took $durationMinutes minutes")
 }

@@ -5,7 +5,7 @@
 import com.databricks.WorkflowException
 
 val notebookTimeoutSec = 24*60*60 //1 day
-val notebook = "/Users/alex@emogi.com/daily_jobs_s3/ALL daily scripts (S3)"
+val notebook = "/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/ALL daily scripts (S3)"
 
 // Since dbutils.notebook.run() is just a function call, you can retry failures using standard Scala try-catch
 // control flow. Here we show an example of retrying a notebook a number of times.

@@ -27,7 +27,7 @@ val dtAllStart = DateTime.now()
 val dt4Start = DateTime.now()
 println("Starting DIP Circle (S3) data daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/DIP Circles/DIP Circle runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/DIP Circles/DIP Circle runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"DIP Circle data (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt4Start)} minutes")
 
@@ -36,7 +36,7 @@ println(s"DIP Circle data (S3) daily script...result = $result! It took ${Minute
 val dt7Start = DateTime.now()
 println("Starting Daily report daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/Daily report/Daily report runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Daily report/Daily report runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"Daily report (S3)  script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt7Start)} minutes")
 
@@ -45,7 +45,7 @@ println(s"Daily report (S3)  script...result = $result! It took ${Minutes.minute
 val dt7Start = DateTime.now()
 println("Starting Trigger stats data daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/Trigger/Trigger stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Trigger/Trigger stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"Trigger stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt7Start)} minutes")
 
@@ -54,7 +54,7 @@ println(s"Trigger stats (S3) daily script...result = $result! It took ${Minutes.
 val dt9Start = DateTime.now()
 println("Starting DIP content daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/DIP content/DIP content runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/DIP content/DIP content runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"DIP content (S3) script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt9Start)} minutes")
 
@@ -63,7 +63,7 @@ println(s"DIP content (S3) script...result = $result! It took ${Minutes.minutesB
 val dt1Start = DateTime.now()
 println("Starting ODS stats (S3) daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/ODS_stats/ODS stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/ODS_stats/ODS stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"ODS stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt1Start)} minutes")
 
@@ -72,7 +72,7 @@ println(s"ODS stats (S3) daily script...result = $result! It took ${Minutes.minu
 val dt2Start = DateTime.now()
 println("Starting ODS ETL (S3) daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/ODS_ETL/ODS ETL runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/ODS_ETL/ODS ETL runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"ODS ETL (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt2Start)} minutes")
 
@@ -81,7 +81,7 @@ println(s"ODS ETL (S3) daily script...result = $result! It took ${Minutes.minute
 val dt3Start = DateTime.now()
 println("Starting DIP stats (S3) daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/DIP stats/DIP ETL runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/DIP stats/DIP ETL runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"DIP stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt3Start)} minutes")
 
@@ -90,7 +90,7 @@ println(s"DIP stats (S3) daily script...result = $result! It took ${Minutes.minu
 val dt5Start = DateTime.now()
 println("Starting Placement stats data daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/Placement/Placement stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Placement/Placement stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"Placement stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt5Start)} minutes")
 
@@ -99,7 +99,7 @@ println(s"Placement stats (S3) daily script...result = $result! It took ${Minute
 val dt8Start = DateTime.now()
 println("Starting DIP graph daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/DIP graph/DIP Graph runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/DIP graph/DIP Graph runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"DIP graph (S3)  script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt8Start)} minutes")
 
@@ -108,7 +108,7 @@ println(s"DIP graph (S3)  script...result = $result! It took ${Minutes.minutesBe
 val dt10Start = DateTime.now()
 println("Starting Search stats data daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/Search/Search runner", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Search/Search runner", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"Search stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt10Start)} minutes")
 
@@ -117,7 +117,7 @@ println(s"Search stats (S3) daily script...result = $result! It took ${Minutes.m
 val dt6Start = DateTime.now()
 println("Starting Reach stats data daily script...")
 
-val result = dbutils.notebook.run("/Users/alex@emogi.com/daily_jobs_s3/Reach/Reach stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
+val result = dbutils.notebook.run("/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Reach/Reach stats runner (S3)", timeoutSec, Map("dateFrom" -> tsFrom.toString, "dateTo" -> tsTo.toString, "s3Folder" -> s3Folder))
 
 println(s"Reach stats (S3) daily script...result = $result! It took ${Minutes.minutesBetween(DateTime.now(), dt6Start)} minutes")
 

@@ -1,9 +1,9 @@
 // Databricks notebook source
-// MAGIC %run "/Users/alex@emogi.com/daily_jobs_s3/Config (S3)"
+// MAGIC %run "/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Config (S3)"
 
 // COMMAND ----------
 
-// MAGIC %run "/Users/alex@emogi.com/daily_jobs_s3/Utils"
+// MAGIC %run "/Users/s.medvedev@zazmic.com/daily_jobs_v1_test/Utils"
 
 // COMMAND ----------
 
