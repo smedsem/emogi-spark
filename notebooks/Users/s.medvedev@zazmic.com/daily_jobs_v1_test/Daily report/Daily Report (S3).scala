@@ -18,15 +18,24 @@ import org.apache.spark.sql.types._
 var currentTs = DateTime.now()
 val defaultDateTo = new DateTime(currentTs.getYear,currentTs.getMonthOfYear,currentTs.getDayOfMonth,0,0)
 val defaultDateFrom = defaultDateTo.minusDays(1)
+val defaultDateToMS = defaultDateTo.getMillis
+val defaultDateFromMS = defaultDateFrom.getMillis
+
+//dbutils.widgets.help()
+
+dbutils.widgets.removeAll
 
 dbutils.widgets.text("dateFrom", defaultDateFrom.getMillis.toString, "dateFrom")
 dbutils.widgets.text("dateTo", defaultDateTo.getMillis.toString, "dateTo")
-dbutils.widgets.text("s3Folder", "/mnt/events", "s3Folder")
+dbutils.widgets.text("s3Folder", "/mnt/non_prod_events/qa/raw_logs", "s3Folder")
+dbutils.widgets.text("isTest", "true", "Is Test")
 
 //we either take it from the incoming parameter or use default ts range (yesterday)
 val tsFrom = dbutils.widgets.get("dateFrom").toLong
 val tsTo = dbutils.widgets.get("dateTo").toLong
 val s3Folder = dbutils.widgets.get("s3Folder")
+val isTest = dbutils.widgets.get("isTest").toBoolean
+
 
 val saveMode = SaveMode.Append //SaveMode.Overwrite // // //  - we need this mode to create mysql table
 
@@ -90,6 +99,8 @@ val mxSharesRdd = mxRawRdd
 val mxDF = mxViewsRdd.union(mxSharesRdd)
 
 val mxRdd = mxDF.rdd
+
+//display(mxDF)
 
 val currentTs = new Timestamp(DateTime.now().getMillis)
 
@@ -172,42 +183,49 @@ val contentDeliveryDF = contentDeliveryDFRaw
   .toDF("ymd","app_id","app_name","xpla_id","xpla_name","adv_id","adv_name", "camp_id","camp_name", "content_id","content_name", "orgo_views","orgo_shares","orgo_share_rt","branded_views","branded_shares", "branded_share_rt","all_views", "all_shares","all_share_rt", "plat_vers", "is_branded", "date_modified")
 
 
-// delete existing rows
-// list of days in the new stats report
-val datesList = contentDeliveryDF.select($"ymd").distinct().collect()
-val table = "content_delivery"
+if (!isTest) {
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from $table for day=$d")
+  // delete existing rows
+  // list of days in the new stats report
+  val datesList = contentDeliveryDF.select($"ymd").distinct().collect()
+  val table = "content_delivery"
+
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
+      try {
+        datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from $table for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        }
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
-  }
-  //write to MySQL
-  print(s"Starting writing results to $table...")
-  val startTs = DateTime.now()
+  
+    //write to MySQL
+    print(s"Starting writing results to $table...")
+    val startTs = DateTime.now()
 
-  contentDeliveryDF
+  
+    contentDeliveryDF
     .write
     .mode(saveMode)
     .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
 
-  val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
-  println(s" - DONE, it took $durationMinutes minutes")
+    val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
+    println(s" - DONE, it took $durationMinutes minutes")
+  } else {
+    display(contentDeliveryDF)
+  }
 } else {
-  display(contentDeliveryDF)
+    println(s"Test")
 }
 
 
@@ -271,38 +289,42 @@ val platCampDeliveryfDF = platCampDeliveryDFRaw
 val datesList = platCampDeliveryfDF.select($"ymd").distinct().collect()
 val table = "platform_campaign_delivery"
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from $table for day=$d")
+if (!isTest) {
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
+      try {
+        datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from $table for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        }
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
+    //write to MySQL
+    print(s"Starting writing results to $table...")
+    val startTs = DateTime.now()
+
+    platCampDeliveryfDF
+      .write
+      .mode(saveMode)
+      .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
+
+    val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
+    println(s" - DONE, it took $durationMinutes minutes")
+  } else {
+    display(platCampDeliveryfDF)
   }
-  //write to MySQL
-  print(s"Starting writing results to $table...")
-  val startTs = DateTime.now()
-
-  platCampDeliveryfDF
-    .write
-    .mode(saveMode)
-    .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
-
-  val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
-  println(s" - DONE, it took $durationMinutes minutes")
 } else {
-  display(platCampDeliveryfDF)
-}
+    println(s"Test")
+}  
 
 
 // COMMAND ----------
@@ -353,38 +375,43 @@ val appDeliveryDF = appDeliveryDFRaw
 // list of days in the new stats report
 val datesList = appDeliveryDF.select($"ymd").distinct().collect()
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = "DELETE FROM app_delivery WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,"app_delivery",scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from app_delivery for day=$d")
+if (!isTest) {
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = "DELETE FROM app_delivery WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,"app_delivery",scala.Predef.Map()))()
+      try {
+        datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from app_delivery for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        }
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
+    //write to MySQL
+    print("Starting writing results to app_delivery...")
+    val startTs = DateTime.now()
+
+    appDeliveryDF
+      .write
+      .mode(saveMode)
+      .jdbc(jdbcDipCts1ProductAnalytics, "app_delivery", new java.util.Properties())
+
+    val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
+    println(s" - DONE, it took $durationMinutes minutes")
+  } else {
+    display(appDeliveryDF)
   }
-  //write to MySQL
-  print("Starting writing results to app_delivery...")
-  val startTs = DateTime.now()
-
-  appDeliveryDF
-    .write
-    .mode(saveMode)
-    .jdbc(jdbcDipCts1ProductAnalytics, "app_delivery", new java.util.Properties())
-
-  val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
-  println(s" - DONE, it took $durationMinutes minutes")
 } else {
-  display(appDeliveryDF)
-}
+    println(s"Test")
+}  
+
 
 
 // COMMAND ----------
@@ -443,37 +470,41 @@ val compTriggerPerfDF = compTriggerPerfDFRaw
 val datesList = compTriggerPerfDF.select($"ymd").distinct().collect()
 val table = "comparative_trigger_perf"
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from $table for day=$d")
+if (!isTest) {
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
+      try {
+        datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from $table for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        } 
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
+    //write to MySQL
+    print(s"Starting writing results to $table...")
+    val startTs = DateTime.now()
+
+    compTriggerPerfDF
+      .write
+      .mode(saveMode)
+      .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
+
+    val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
+    println(s" - DONE, it took $durationMinutes minutes")
+  } else {
+    display(compTriggerPerfDF)
   }
-  //write to MySQL
-  print(s"Starting writing results to $table...")
-  val startTs = DateTime.now()
-
-  compTriggerPerfDF
-    .write
-    .mode(saveMode)
-    .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
-
-  val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
-  println(s" - DONE, it took $durationMinutes minutes")
 } else {
-  display(compTriggerPerfDF)
+    println(s"Test")
 }
 
 
@@ -532,37 +563,41 @@ val triggerPerfDF = triggerPerfDFRaw
 val datesList = triggerPerfDF.select($"ymd").distinct().collect()
 val table = "trigger_perf"
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from $table for day=$d")
+if (!isTest) {
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
+      try {
+        datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from $table for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        }
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
+    //write to MySQL
+    print(s"Starting writing results to $table...")
+    val startTs = DateTime.now()
+
+    triggerPerfDF
+      .write
+      .mode(saveMode)
+      .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
+
+    val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
+    println(s" - DONE, it took $durationMinutes minutes")
+  } else {
+    display(triggerPerfDF)
   }
-  //write to MySQL
-  print(s"Starting writing results to $table...")
-  val startTs = DateTime.now()
-
-  triggerPerfDF
-    .write
-    .mode(saveMode)
-    .jdbc(jdbcDipCts1ProductAnalytics, table, new java.util.Properties())
-
-  val durationMinutes = (((DateTime.now().getMillis - startTs.getMillis) / 1000 )/ 60).toInt
-  println(s" - DONE, it took $durationMinutes minutes")
 } else {
-  display(triggerPerfDF)
+    println(s"Test")
 }
 
 
@@ -628,24 +663,25 @@ val campDeliveryfDF = campDeliveryDFRaw
 val datesList = campDeliveryfDF.select($"ymd").distinct().collect()
 val table = "campaign_delivery"
 
-if (storeResultsToMySQL) { 
-  if (deleteBeforeSave) {
-    val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
-    val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
-    try {
-      datesList.foreach { d =>
-        val stmt = mysqlConnection.prepareStatement(deleteQuery)
-        stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
-        stmt.execute()
-        println(s"Deleted records from $table for day=$d")
+if (!isTest) {
+  if (storeResultsToMySQL) { 
+    if (deleteBeforeSave) {
+      val deleteQuery = s"DELETE FROM $table WHERE ymd=?;"
+      val mysqlConnection = JdbcUtils.createConnectionFactory(new JDBCOptions(jdbcDipCts1ProductAnalytics,table,scala.Predef.Map()))()
+      try {
+       datesList.foreach { d =>
+          val stmt = mysqlConnection.prepareStatement(deleteQuery)
+          stmt.setTimestamp(1, d(0).asInstanceOf[Timestamp])
+          stmt.execute()
+          println(s"Deleted records from $table for day=$d")
+        }
+      }
+      finally {
+        if (null != mysqlConnection) {
+          mysqlConnection.close()
+        }
       }
     }
-    finally {
-      if (null != mysqlConnection) {
-        mysqlConnection.close()
-      }
-    }
-  }
   //write to MySQL
   print(s"Starting writing results to $table...")
   val startTs = DateTime.now()
@@ -659,6 +695,9 @@ if (storeResultsToMySQL) {
   println(s" - DONE, it took $durationMinutes minutes")
 } else {
   display(campDeliveryfDF)
+}
+} else {
+    println(s"Test")
 }
 
 
