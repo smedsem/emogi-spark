@@ -12,8 +12,12 @@ val latestDayWeHaveDataFor = DateTime.now() // new DateTime(2017, 9, 25, 0, 0)
 
 
 //not including tsTo day
-def getS3PathForDates(tsFrom: Long, tsTo: Long, s3FoldersPlusMinus: Int = 1, includeLastDay : Boolean = false) : String = {
+def getS3PathForDates(tsFrom: Long, tsTo: Long, s3FoldersPlusMinus: Int = 1, includeLastDay : Boolean = false, isTest : Boolean = false) : String = {
 
+  if(isTest){
+    return s"dt=$testDate"
+  } 
+  
   val dtFromRaw = new DateTime(tsFrom).minusDays(s3FoldersPlusMinus)
   val dtToRaw = new DateTime(tsTo).plusDays(s3FoldersPlusMinus).plusMinutes(1) //if 23:59 then it's next day
 
