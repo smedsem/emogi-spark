@@ -14,7 +14,7 @@ val latestDayWeHaveDataFor = DateTime.now() // new DateTime(2017, 9, 25, 0, 0)
 //not including tsTo day
 def getS3PathForDates(tsFrom: Long, tsTo: Long, s3FoldersPlusMinus: Int = 1, includeLastDay : Boolean = false, isTest : Boolean = false) : String = {
 
-  println("getS3PathForDates isTest = $isTest")
+  println(s"getS3PathForDates isTest = $isTest")
   if(isTest){
     return s"dt=$testDate"
   } 
