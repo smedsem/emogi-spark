@@ -181,7 +181,7 @@ def roundConxTimestamp(actionTs: Long, at: String) = {
 def saveTestResult(df:org.apache.spark.sql.DataFrame, table:String, useTmpTable:Boolean) = {
   if(useTmpTable) {
     println(s"Put results to tmp table : $table")
-    display(contentDeliveryDF)
+    display(df)
     contentDeliveryDF.createOrReplaceTempView(table)
   } else {
     println(s"Put results to real table : $table")
